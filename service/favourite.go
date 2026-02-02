@@ -1,6 +1,9 @@
 package service
 
-import "demo02/repository"
+import (
+	"demo02/model"
+	"demo02/repository"
+)
 
 type FavouriteService struct {
 	FavouriteSVC *repository.FavouriteDAO
@@ -22,4 +25,8 @@ func (f *FavouriteService) AddFavourite(userID, bookID int) error {
 
 func (f *FavouriteService) RemoveFavourite(userID, bookID int) (bool, error) {
 	return f.FavouriteSVC.RemoveFavourite(userID, bookID)
+}
+
+func (f *FavouriteService) GetUserFavourite(userID int) (*[]model.FavouriteInfo, error) {
+	return f.FavouriteSVC.GetUserFavourite(userID)
 }

@@ -16,6 +16,7 @@ func InitRouter() *gin.Engine {
 		{
 			user.POST("/userRegistrateIn", controller.NewUserCTL().UserRegistIn)
 			user.POST("/userLogIn", controller.NewUserCTL().UserLogIn)
+
 		}
 
 		auth := user.Group("")
@@ -41,7 +42,9 @@ func InitRouter() *gin.Engine {
 			{
 				favourite.POST("/favourite", controller.NewFavouriteController().AddFavourite)
 				favourite.DELETE("/favourite", controller.NewFavouriteController().RemoveFavourite)
+				favourite.GET("/list", controller.NewFavouriteController().GetUserFavourite)
 			}
+
 		}
 	}
 	return r

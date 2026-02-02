@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"demo02/global"
+	"demo02/model"
 	"fmt"
 )
 
@@ -56,4 +57,63 @@ func (f *FavouriteDAO) RemoveFavourite(userID, bookID int) (bool, error) {
 
 	// 受影响行数=1 → 删除成功；=0 → 无匹配的用户ID+书籍ID记录
 	return affectedRows == 1, nil
+}
+
+func (f *FavouriteDAO) GetUserFavourite(userID int) (*[]model.FavouriteInfo, error) {
+	// 核心左连接SQL语句（参数化查询，防止SQL注入）
+	sqlStr := `
+	SELECT 
+	  书籍.书籍ID ,
+	  书籍.书籍名,
+	  书籍.书籍作者,
+	  书籍.书籍余量,
+	  书籍.书籍销量,
+	  书籍.书籍价格,
+	  收藏.ID,
+	  收藏.用户ID
+	FROM 
+	  书籍
+	LEFT JOIN 
+	  收藏
+	ON 
+	  书籍.书籍ID=收藏.书籍ID
+	WHERE 
+	  收藏.用户ID = ?
+	`
+
+	// 执行查询，传入用户ID作为参数
+	rows, err := global.Db.Query(sqlStr, userID)
+	if err != nil {
+		return nil, fmt.Errorf("查询失败：%w", err)
+	}
+	// 必须延迟关闭rows，避免数据库连接泄漏
+	defer rows.Close()
+
+	// 遍历结果集，封装到切片中
+	var result []model.FavouriteInfo
+	for rows.Next() {
+		var bc model.FavouriteInfo
+		// 扫描行数据到结构体，字段顺序必须与SQL查询结果一致
+		err := rows.Scan(
+			&bc.BookID,
+			&bc.BookName,
+			&bc.Author,
+			&bc.Price,
+			&bc.CollectID,
+			&bc.UserID,
+			&bc.CollectID,
+			&bc.UserID,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("解析结果失败：%w", err)
+		}
+		result = append(result, bc)
+	}
+
+	// 检查遍历结果集时是否发生错误
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("遍历结果失败：%w", err)
+	}
+
+	return &result, nil
 }

@@ -3,6 +3,7 @@ package controller
 import (
 	"demo02/service"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -93,5 +94,34 @@ func (f *FavouriteController) RemoveFavourite(c *gin.Context) {
 		"msg":           "已移除收藏",
 		"affected_rows": affectedRows,
 		"error":         nil,
+	})
+}
+
+func (f *FavouriteController) GetUserFavourite(c *gin.Context) {
+	userID := GetUserIDFromHeader(c)
+	if userID == 0 {
+		c.JSON(400, gin.H{
+			"code":  -1,
+			"msg":   "未登录",
+			"error": nil,
+		})
+		return
+	}
+	books, err := f.FavouriteCTL.GetUserFavourite(userID)
+	if err != nil {
+		log.Fatalf("查询关联数据失败：%v", err)
+		c.JSON(500, gin.H{
+			"code":  -1,
+			"msg":   "获取用户收藏书籍失败",
+			"books": nil,
+			"error": err,
+		})
+		return
+	}
+	c.JSON(200, gin.H{
+		"code":  0,
+		"msg":   "获取用户收藏成功",
+		"books": books,
+		"error": nil,
 	})
 }
