@@ -44,7 +44,13 @@ func InitRouter() *gin.Engine {
 				favourite.DELETE("/favourite", controller.NewFavouriteController().RemoveFavourite)
 				favourite.GET("/list", controller.NewFavouriteController().GetUserFavourite)
 			}
-
+		}
+		order := v1.Group("/order")
+		{
+			order.Use(midleWare.JWTAuthMiddleware())
+			{
+				//order.POST("/creat", controller.NewOrderController.CreateOrder)
+			}
 		}
 	}
 	return r

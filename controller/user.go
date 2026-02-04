@@ -47,15 +47,6 @@ func (u *UserControl) UserRegistIn(ctx *gin.Context) {
 		return
 	}
 
-	//在前端显示user绑定的数据，检验是否一致
-	ctx.JSON(http.StatusOK, gin.H{
-		"userName":    user.Username,
-		"passWord":    user.Password,
-		"phoneNum":    user.Phonenumber,
-		"email":       user.Email,
-		"cfmPassword": user.ConfirmPaswd,
-	})
-
 	//检验两次密码是否一致
 	if user.Password != user.ConfirmPaswd {
 		ctx.JSON(400, gin.H{
@@ -80,7 +71,14 @@ func (u *UserControl) UserRegistIn(ctx *gin.Context) {
 		})
 		return
 	}
-
+	//在前端显示user绑定的数据，检验是否一致
+	ctx.JSON(http.StatusOK, gin.H{
+		"userName":    user.Username,
+		"passWord":    user.Password,
+		"phoneNum":    user.Phonenumber,
+		"email":       user.Email,
+		"cfmPassword": user.ConfirmPaswd,
+	})
 }
 
 // 已注册的用户登录
@@ -157,6 +155,7 @@ func (u *UserControl) UpdateUserProfile(ctx *gin.Context) {
 			"coded": -1,
 			"msg":   "未登录",
 		})
+		return
 	}
 	//更新后的用户信息
 	var updateDate struct {
@@ -194,6 +193,7 @@ func (u *UserControl) ChangePassword(c *gin.Context) {
 			"code": -1,
 			"msg":  "未登录",
 		})
+		return
 	}
 	//修改密码所需的信息：旧密码与新密码
 	var passwordData struct {
@@ -205,6 +205,7 @@ func (u *UserControl) ChangePassword(c *gin.Context) {
 			"code": -1,
 			"msg":  "绑定失败",
 		})
+		return
 	}
 	err := u.UserService.ChangePassword(passwordData.OldpPassword, passwordData.NewPassword, userID.(int))
 	if err != nil {

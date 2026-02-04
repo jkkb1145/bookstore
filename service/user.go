@@ -36,13 +36,16 @@ func (u *UserService) UserRegist(user *model.User) error {
 	//1,防止某些数据重复
 	exists, err := u.UserDB.CheckUserExisit(user)
 	if err != nil {
+		fmt.Println("查找是否存在相同用户失败")
 		return err
 	}
 	if exists == true {
+		fmt.Println("已存在相同用户")
 		return err
 	}
 	//
 	if err := u.UserDB.InsertUser(user); err != nil {
+		fmt.Println("插入新用户失败")
 		return err
 	}
 	return nil
